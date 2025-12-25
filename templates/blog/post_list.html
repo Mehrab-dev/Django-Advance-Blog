@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post List</title>
+</head>
+<body>
+    {% for post in posts %}
+
+    <h3>{{post.id}}   -    {{post.title}}</h3>
+    <P>{{post.author}}  -  {{post.published_date}}</P>
+    <a href="{% url 'blog:update_post' pk=post.id %}">update</a>
+    <a href="{% url 'blog:delete_post' pk=post.id %}">delete</a>
+
+    {% endfor %}
+</body>
+</html>
