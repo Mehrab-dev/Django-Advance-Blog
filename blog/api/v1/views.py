@@ -1,6 +1,7 @@
-from .serializers import PostSerializer
-from blog.models import Post
+from .serializers import PostSerializer , CategorySerializer
+from blog.models import Post , Category
 from django.shortcuts import get_object_or_404
+from .paginations import DefaultPaginations
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -212,4 +213,12 @@ class PostModelViewSet(viewsets.ModelViewSet) :
     # filterset_fields = ['author','status']
     filterset_fields = {'category':['exact','in'],'author':['exact','in']}
     search_fields = ['title']
+    ordering_fields = ['published_date']
+    pagination_class = DefaultPaginations
+
+
+class CategoryModelViewSet(viewsets.ModelViewSet) :
+    permission_classes = [IsAuthenticated]
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
 

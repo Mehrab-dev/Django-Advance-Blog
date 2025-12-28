@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from blog.models import Post
+from blog.models import Post , Category
 
 
 # serializer with function
@@ -16,5 +16,9 @@ class PostSerializer(serializers.ModelSerializer) :
         fields = ['id','title','content','status','category','author','created_date','updated_date','published_date']
 
 
+class CategorySerializer(serializers.ModelSerializer) :
 
+    class Meta :
+        model = Category
+        fields = ['id','name','created_date']
     
