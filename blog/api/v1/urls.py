@@ -10,8 +10,15 @@ urlpatterns = [
 
 
     # class base
-    path('posts/',views.PostList.as_view(),name='post_list'),
-    path('post/<int:pk>/',views.PostDetail.as_view(),name='post_detail')
+    # path('posts/',views.PostList.as_view(),name='post_list'),
+    # path('post/<int:pk>/',views.PostDetail.as_view(),name='post_detail'),
+
+    # viewset
+    # path('posts/',views.PostViewSet.as_view({'get':'list','post':'create'}),name='post_list_viewset'),
+    # path('post/<int:pk>/',views.PostViewSet.as_view({'get':'retrieve','put':'update','delete':'destroy'}),name='post_detail_viewset'),
+
+    path('posts/',views.PostModelViewSet.as_view({'get':'list','post':'create'},name='post_list_modelviewset')),
+    path('post/<int:pk>/',views.PostModelViewSet.as_view({'get':'retrieve','put':'update','delete':'destroy'}))
 
 
 ]

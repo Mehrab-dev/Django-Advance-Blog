@@ -5,10 +5,13 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
-from rest_framework.generics import GenericAPIView , ListCreateAPIView
+from rest_framework.generics import GenericAPIView , ListCreateAPIView , RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import ListModelMixin , CreateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+from rest_framework import viewsets
+from rest_framework.filters import OrderingFilter , SearchFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 """
 @api_view(['GET','POST'])
@@ -113,6 +116,8 @@ def post_detail_api(request,pk) :
         return Response({'detail':'post does not exists'},status=status.HTTP_404_NOT_FOUND)
 """
 
+
+"""
 class PostDetail(APIView) :
     serializer_class = PostSerializer
 
@@ -142,6 +147,69 @@ class PostDetail(APIView) :
             return Response({'detail':'itrm removed successfully'},status=status.HTTP_204_NO_CONTENT)
         except Post.DoesNotExist :
             return Response({'detail':'post does not exists'})
+"""
+        
+
+"""
+class PostDetail(RetrieveUpdateDestroyAPIView) :
+    permission_classes = [IsAuthenticated]
+    serializer_class = PostSerializer
+    queryset = Post.objects.filter(status=True)
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
     
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+    
+    def destroy(self, request, *args, **kwargs):
+        return self.delete(request, *args, **kwargs)
+"""
 
     
+class PostViewSet(viewsets.ViewSet) :
+    permission_classes = [IsAuthenticated]
+    serializer_class = PostSerializer
+    queryset = Post.objects.filter(status=True)
+
+    def list(self,request) :
+        serializer = PostSerializer(self.queryset,many=True)
+        return Response(serializer.data)
+    
+    def retrieve(self,request,pk=None) :
+        post = get_object_or_404(self.queryset,pk=pk)
+        serializer = PostSerializer(post)
+        return Response(serializer.data)
+
+    def create(self,request,pk=None) :
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid() :
+            serializer.save()
+            return Response(request.data)
+        else :
+            return Response(serializer.errors)
+
+    def update(self,request,pk=None) :
+        post = get_object_or_404(Post,pk=pk)
+        serializer = self.serializer_class(post,data=request.data)
+        if serializer.is_valid() :
+            serializer.save()
+            return Response(request.data)
+        else :
+            return Response(serializer.data)
+        
+    def destroy(self,request,pk=None) :
+        post = get_object_or_404(Post,pk=pk)
+        post.delete()
+        return Response ({'detail':'item removes successfully'})
+    
+    
+class PostModelViewSet(viewsets.ModelViewSet) :
+    permission_classes = [IsAuthenticated]
+    serializer_class = PostSerializer
+    queryset = Post.objects.filter(status=True)
+    filter_backends = [DjangoFilterBackend,SearchFilter,OrderingFilter]
+    # filterset_fields = ['author','status']
+    filterset_fields = {'category':['exact','in'],'author':['exact','in']}
+    search_fields = ['title']
+
