@@ -1,4 +1,6 @@
 from django.db import models
+from django.urls import reverse
+
 
 class Post(models.Model) :
     title = models.CharField(max_length=255)
@@ -12,6 +14,12 @@ class Post(models.Model) :
 
     def __str__(self):
         return self.title
+    
+    def get_snippet(self) :
+        return self.content[:10] + '....'
+    
+    def get_relative_api_url(self) :
+        return reverse('blog:api-v1:post_detail_modelviewset',kwargs={'pk':self.id})
     
 class Category(models.Model) :
     name = models.CharField(max_length=255)
