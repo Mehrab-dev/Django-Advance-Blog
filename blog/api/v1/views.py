@@ -86,7 +86,7 @@ class PostList(GenericAPIView,ListModelMixin,CreateModelMixin) :
 class PostList(ListCreateAPIView) :
     permission_classes = [IsAuthenticated]
     serializer_class = PostSerializer
-    queryset = Post.objects.filter(status=True)
+    queryset = Post.objects.select_related('author','category').filter(status=True)
 
 # post detail
 """
@@ -211,7 +211,7 @@ class PostViewSet(viewsets.ViewSet) :
 class PostModelViewSet(viewsets.ModelViewSet) :
     permission_classes = [IsAuthenticated,IsOwnerOrReadOnly]
     serializer_class = PostSerializer
-    queryset = Post.objects.filter(status=True)
+    queryset = Post.objects.select_related('author','category').filter(status=True)
     filter_backends = [DjangoFilterBackend,SearchFilter,OrderingFilter]
     # filterset_fields = ['author','status']
     filterset_fields = {'category':['exact','in'],'author':['exact','in']}
