@@ -3,6 +3,7 @@ from blog.models import Post , Category
 from django.shortcuts import get_object_or_404
 from .paginations import DefaultPaginations
 from .permissions import IsOwnerOrReadOnly
+from django.db import transaction
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -16,7 +17,7 @@ from rest_framework.filters import OrderingFilter , SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
 """
-@api_view(['GET','POST'])
+@api_view(['GET','POST']) 
 def Post_List_Api_View(request) :
     if request.method == 'GET' :
         posts = Post.objects.filter(status=True)
@@ -218,6 +219,13 @@ class PostModelViewSet(viewsets.ModelViewSet) :
     search_fields = ['title']
     ordering_fields = ['published_date']
     pagination_class = DefaultPaginations
+
+    @transaction.atomic
+    def perform_create(self, serializer):
+        post = serializer.save(author=self.request.user)
+        profile = post.author.profile
+        profile.number_of_post += 1
+        profile.save()
 
 
 class CategoryModelViewSet(viewsets.ModelViewSet) :
